@@ -1,6 +1,5 @@
 package uk.org.thehickses.cartesian;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Spliterators.AbstractSpliterator;
 import java.util.concurrent.atomic.AtomicReference;
