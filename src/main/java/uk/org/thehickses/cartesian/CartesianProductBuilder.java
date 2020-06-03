@@ -2,6 +2,7 @@ package uk.org.thehickses.cartesian;
 
 import java.util.Collection;
 import java.util.Spliterators.AbstractSpliterator;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.LongBinaryOperator;
 import java.util.stream.Stream;
@@ -172,24 +173,25 @@ public class CartesianProductBuilder
             return (a, b) -> a == 0 ? 0 : maxValue / a < b ? maxValue : a * b;
         }
 
-        private DataReader[] readers;
+        private final AtomicReference<DataReader[]> readers = new AtomicReference<>();
 
         private CartesianSpliterator(Object[][] data)
         {
             super(estimatedSize(data), IMMUTABLE | NONNULL | ORDERED);
-            if (Stream.of(data).anyMatch(d -> d.length == 0))
-                readers = null;
-            else
-                readers = Stream.of(data).map(DataReader::new).toArray(DataReader[]::new);
+            if (Stream.of(data).noneMatch(d -> d.length == 0))
+                readers.set(Stream.of(data).map(DataReader::new).toArray(DataReader[]::new));
         }
 
         @Override
         public boolean tryAdvance(Consumer<? super Combination> action)
         {
-            if (readers == null)
-                return false;
-            action.accept(currentCombination());
-            return advance();
+            synchronized (readers)
+            {
+                if (readers.get() == null)
+                    return false;
+                action.accept(currentCombination());
+                return advance();
+            }
         }
 
         /**
@@ -199,7 +201,7 @@ public class CartesianProductBuilder
          */
         private Combination currentCombination()
         {
-            return new Combination(Stream.of(readers).map(DataReader::value).toArray());
+            return new Combination(Stream.of(readers.get()).map(DataReader::value).toArray());
         }
 
         /**
@@ -209,13 +211,14 @@ public class CartesianProductBuilder
          */
         private boolean advance()
         {
-            for (int i = readers.length - 1; i >= 0; i--)
+            DataReader[] dataReaders = readers.get();
+            for (int i = dataReaders.length - 1; i >= 0; i--)
             {
-                if (readers[i].advance().hasValue())
+                if (dataReaders[i].advance().hasValue())
                     return true;
-                readers[i].reset();
+                dataReaders[i].reset();
             }
-            readers = null;
+            readers.set(null);
             return false;
         }
     }
