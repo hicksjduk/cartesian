@@ -121,7 +121,8 @@ public class CartesianProductBuilder
      *            the objects.
      * @return the new builder.
      */
-    public CartesianProductBuilder and(Object... objects)
+    @SafeVarargs
+    public final <T> CartesianProductBuilder and(T... objects)
     {
         return new CartesianProductBuilder(this, Stream.of(objects));
     }
