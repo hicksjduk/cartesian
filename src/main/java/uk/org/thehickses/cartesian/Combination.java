@@ -1,6 +1,9 @@
 package uk.org.thehickses.cartesian;
 
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 /**
@@ -102,5 +105,24 @@ public class Combination
     public boolean nextBoolean()
     {
         return next(Boolean.class);
+    }
+
+    /**
+     * Gets all the remaining objects in the collection, casting each to the specified type.
+     * 
+     * @param <T>
+     *            the type.
+     * @param type
+     *            the class object for the type.
+     * @return a stream of the remaining objects.
+     * @throws ClassCastException
+     *             if any element cannot be cast to the specified type.
+     */
+    public <T> Stream<T> allRemaining(Class<T> type)
+    {
+        List<T> answer = new LinkedList<>();
+        while (hasNext())
+            answer.add(next(type));
+        return answer.stream();
     }
 }
