@@ -5,11 +5,12 @@ import java.util.Spliterators.AbstractSpliterator;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.LongBinaryOperator;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * A builder that creates the Cartesian product of any number of collections of objects. The objects can be specified
+ * A builder that creates the Cartesian product of two or more collections of objects. The objects can be specified
  * individually, or in a stream, an array or a collection.
  * 
  * <p>
@@ -18,49 +19,53 @@ import java.util.stream.StreamSupport;
  * collection. For example, the Cartesian product of the collections (A, B), (C, D) and (E, F) consists of (A, C, E),
  * (A, C, F), (A, D, E), (A, D, F), (B, C, E), (B, C, F), (B, D, E) and (B, D, F).
  * 
+ * <p>
+ * An example of the use of this class to build the above Cartesian product:
+ * 
+ * <pre>
+ * CartesianProductBuilder.of(A, B).and(C, D).and(E, F).build();
+ * </pre>
+ * 
  * @author Jeremy Hicks
  *
  */
 public class CartesianProductBuilder
 {
     /**
-     * Gets a builder which (unless more collections are added to it) builds a Cartesian product containing one
-     * combination for each element in the specified stream.
+     * Gets a base builder which contains the objects in the specified stream.
      * 
      * @param objects
-     *            the objects that are to appear in the output.
+     *            the objects.
      * @return the builder.
      */
-    public static CartesianProductBuilder of(Stream<?> objects)
+    public static CartesianProductBuilderBase of(Stream<?> objects)
     {
-        return new CartesianProductBuilder(null, objects);
+        return new CartesianProductBuilderBase(objects);
     }
 
     /**
-     * Gets a builder which (unless more collections are added to it) builds a Cartesian product containing one
-     * combination for each element in the specified collection.
+     * Gets a base builder which contains the objects in the specified collection.
      * 
      * @param objects
-     *            the objects that are to appear in the output.
+     *            the objects.
      * @return the builder.
      */
-    public static CartesianProductBuilder of(Collection<?> objects)
+    public static CartesianProductBuilderBase of(Collection<?> objects)
     {
-        return new CartesianProductBuilder(null, objects.stream());
+        return new CartesianProductBuilderBase(objects.stream());
     }
 
     /**
-     * Gets a builder which (unless more collections are added to it) builds a Cartesian product containing one
-     * combination for each of the specified elements.
+     * Gets a base builder which contains the specified objects.
      * 
      * @param objects
-     *            the objects that are to appear in the output.
+     *            the objects.
      * @return the builder.
      */
     @SafeVarargs
-    public static <T> CartesianProductBuilder of(T... objects)
+    public static <T> CartesianProductBuilderBase of(T... objects)
     {
-        return new CartesianProductBuilder(null, Stream.of(objects));
+        return new CartesianProductBuilderBase(Stream.of(objects));
     }
 
     /**
@@ -79,13 +84,20 @@ public class CartesianProductBuilder
      * @param objects
      *            the objects to be permuted.
      */
+    private CartesianProductBuilder(CartesianProductBuilderBase base, Stream<?> objects)
+    {
+        this(new Object[][] { base.objects }, objects);
+    }
+
     private CartesianProductBuilder(CartesianProductBuilder base, Stream<?> objects)
     {
+        this(base.objects, objects);
+    }
+
+    private CartesianProductBuilder(Object[][] baseObjects, Stream<?> objects)
+    {
         Stream<Object[]> newObjs = Stream.of(objects).map(Stream::toArray);
-        if (base == null)
-            this.objects = newObjs.toArray(Object[][]::new);
-        else
-            this.objects = Stream.concat(Stream.of(base.objects), newObjs).toArray(Object[][]::new);
+        this.objects = Stream.concat(Stream.of(baseObjects), newObjs).toArray(Object[][]::new);
     }
 
     /**
@@ -174,6 +186,11 @@ public class CartesianProductBuilder
             return (a, b) -> a == 0 ? 0 : maxValue / a < b ? maxValue : a * b;
         }
 
+        /**
+         * An array of readers that are to be used to read the data. If this contains a null array, no data is
+         * available: either because at least one of the data arrays is empty, or because all the data has already been
+         * read.
+         */
         private final AtomicReference<DataReader[]> readers = new AtomicReference<>();
 
         private CartesianSpliterator(Object[][] data)
@@ -186,13 +203,27 @@ public class CartesianProductBuilder
         @Override
         public boolean tryAdvance(Consumer<? super Combination> action)
         {
+            return tryAdvance().test(action);
+        }
+
+        private Predicate<Consumer<? super Combination>> tryAdvance()
+        {
             synchronized (readers)
             {
                 if (readers.get() == null)
-                    return false;
-                action.accept(currentCombination());
-                return advance();
+                    return c -> false;
+                return tryAdvance(currentCombination(), advance());
             }
+        }
+
+        private Predicate<Consumer<? super Combination>> tryAdvance(Combination combination,
+                boolean result)
+        {
+            return c ->
+                {
+                    c.accept(combination);
+                    return result;
+                };
         }
 
         /**
@@ -282,6 +313,64 @@ public class CartesianProductBuilder
         {
             currentIndex = 0;
             return this;
+        }
+    }
+
+    /**
+     * A base object that is used as an intermediate stage in building a {@link CartesianProductBuilder}. This builder
+     * cannot itself be used to build a Cartesian product as at least two collections must be specified; a second
+     * collection can be added to it by calling one of the variants of the {@code and()} method.
+     * 
+     * @author jerhicks
+     *
+     */
+    public static class CartesianProductBuilderBase
+    {
+        private final Object[] objects;
+
+        private CartesianProductBuilderBase(Stream<?> objects)
+        {
+            this.objects = objects.toArray();
+        }
+
+        /**
+         * Gets a builder which will permute the objects in the specified collection with the objects held by this
+         * object.
+         * 
+         * @param objects
+         *            the objects.
+         * @return the new builder.
+         */
+        public CartesianProductBuilder and(Collection<?> objects)
+        {
+            return new CartesianProductBuilder(this, objects.stream());
+        }
+
+        /**
+         * Gets a builder which will permute the objects in the specified collection with the objects held by this
+         * object.
+         * 
+         * @param objects
+         *            the objects.
+         * @return the new builder.
+         */
+        public CartesianProductBuilder and(Stream<?> objects)
+        {
+            return new CartesianProductBuilder(this, objects);
+        }
+
+        /**
+         * Gets a builder which will permute the objects in the specified collection with the objects held by this
+         * object.
+         * 
+         * @param objects
+         *            the objects.
+         * @return the new builder.
+         */
+        @SafeVarargs
+        public final <T> CartesianProductBuilder and(T... objects)
+        {
+            return new CartesianProductBuilder(this, Stream.of(objects));
         }
     }
 }
