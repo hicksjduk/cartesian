@@ -1,5 +1,6 @@
 package uk.org.thehickses.cartesian;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Spliterators.AbstractSpliterator;
 import java.util.concurrent.atomic.AtomicReference;
@@ -81,11 +82,9 @@ public class CartesianProductBuilder
      */
     private CartesianProductBuilder(CartesianProductBuilder base, Stream<?> objects)
     {
-        int length = (base == null ? 0 : base.objects.length) + 1;
-        this.objects = new Object[length][];
-        if (base != null)
-            System.arraycopy(base.objects, 0, this.objects, 0, base.objects.length);
-        this.objects[length - 1] = objects.toArray();
+        Stream<Object[]> objs = Stream.of(objects).map(Stream::toArray);
+        this.objects = (base == null ? objs : Stream.concat(Stream.of(base.objects), objs))
+                .toArray(Object[][]::new);
     }
 
     /**
