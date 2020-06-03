@@ -75,12 +75,11 @@ public class CartesianProductBuilder
     private final Object[][] objects;
 
     /**
-     * Creates a builder from the specified base builder, and some objects that are to be permuted with the Cartesian
-     * product of the base builder.
+     * Creates a builder from the specified builder base, and some objects that are to be permuted with the objects held
+     * in the builder base.
      * 
      * @param base
-     *            the base builder. May be null, in which case the specified objects form the first dimension of the
-     *            data array.
+     *            the builder base.
      * @param objects
      *            the objects to be permuted.
      */
@@ -89,11 +88,29 @@ public class CartesianProductBuilder
         this(new Object[][] { base.objects }, objects);
     }
 
+    /**
+     * Creates a builder from the specified builder, and some objects that are to be permuted with the Cartesian product
+     * of the builder.
+     * 
+     * @param base
+     *            the builder.
+     * @param objects
+     *            the objects to be permuted.
+     */
     private CartesianProductBuilder(CartesianProductBuilder base, Stream<?> objects)
     {
         this(base.objects, objects);
     }
 
+    /**
+     * Creates a builder from the specified object arrays, and some objects that are to be permuted with the Cartesian
+     * product of the arrays.
+     * 
+     * @param baseObject
+     *            the object arrays.
+     * @param objects
+     *            the objects to be permuted.
+     */
     private CartesianProductBuilder(Object[][] baseObjects, Stream<?> objects)
     {
         Stream<Object[]> newObjs = Stream.of(objects).map(Stream::toArray);
