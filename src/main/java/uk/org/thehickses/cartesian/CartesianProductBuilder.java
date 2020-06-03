@@ -337,9 +337,6 @@ public class CartesianProductBuilder
      * A base object that is used as an intermediate stage in building a {@link CartesianProductBuilder}. This builder
      * cannot itself be used to build a Cartesian product as at least two collections must be specified; a second
      * collection can be added to it by calling one of the variants of the {@code and()} method.
-     * 
-     * @author jerhicks
-     *
      */
     public static class CartesianProductBuilderBase
     {
