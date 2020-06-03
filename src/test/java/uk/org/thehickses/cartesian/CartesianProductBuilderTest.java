@@ -6,8 +6,6 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
-import uk.org.thehickses.cartesian.CartesianProductBuilder.Combination;
-
 class CartesianProductBuilderTest
 {
     @Test
