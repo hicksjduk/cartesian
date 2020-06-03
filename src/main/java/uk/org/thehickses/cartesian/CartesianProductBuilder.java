@@ -81,9 +81,11 @@ public class CartesianProductBuilder
      */
     private CartesianProductBuilder(CartesianProductBuilder base, Stream<?> objects)
     {
-        Stream<Object[]> objs = Stream.of(objects).map(Stream::toArray);
-        this.objects = (base == null ? objs : Stream.concat(Stream.of(base.objects), objs))
-                .toArray(Object[][]::new);
+        Stream<Object[]> newObjs = Stream.of(objects).map(Stream::toArray);
+        if (base == null)
+            this.objects = newObjs.toArray(Object[][]::new);
+        else
+            this.objects = Stream.concat(Stream.of(base.objects), newObjs).toArray(Object[][]::new);
     }
 
     /**
