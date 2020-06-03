@@ -9,7 +9,7 @@ import java.util.stream.StreamSupport;
 
 /**
  * A builder that creates the Cartesian product of any number of collections of objects. The objects can be specified
- * individually, or in streams or collections.
+ * individually, or in a stream, an array or a collection.
  * 
  * <p>
  * The Cartesian product of a set of collections consists of all possible combinations of an element from the first
@@ -56,7 +56,8 @@ public class CartesianProductBuilder
      *            the objects that are to appear in the output.
      * @return the builder.
      */
-    public static CartesianProductBuilder of(Object... objects)
+    @SafeVarargs
+    public static <T> CartesianProductBuilder of(T... objects)
     {
         return new CartesianProductBuilder(null, Stream.of(objects));
     }
