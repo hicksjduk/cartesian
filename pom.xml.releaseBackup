@@ -5,32 +5,12 @@
 
 	<groupId>uk.org.thehickses</groupId>
 	<artifactId>cartesian</artifactId>
-	<version>1.1-SNAPSHOT</version>
+	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>cartesian</name>
 	<url>http://maven.apache.org</url>
 
-	<description>A library for building the Cartesian product of two or more collections of objects.</description>
-
-	<licenses>
-		<license>
-			<name>Apache License, Version 2.0</name>
-			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-			<comments>A business-friendly OSS license</comments>
-		</license>
-	</licenses>
-
-	<developers>
-		<developer>
-			<id>jhicks</id>
-			<name>Jeremy Hicks</name>
-			<email>jeremy@thehickses.org.uk</email>
-			<timezone>Europe/London</timezone>
-		</developer>
-	</developers>
-	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -155,7 +135,7 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
-
+	
 	<profiles>
 		<!-- GPG Signature on release -->
 		<profile>
@@ -186,5 +166,5 @@
 			</build>
 		</profile>
 	</profiles>
-
+	
 </project>
