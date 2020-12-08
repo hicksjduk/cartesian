@@ -63,7 +63,7 @@ public class CartesianProductBuilder
      */
     public static CartesianProductBuilderBase of(Collection<?> objects)
     {
-        return new CartesianProductBuilderBase(objects.stream());
+        return of(objects.stream());
     }
 
     /**
@@ -76,7 +76,7 @@ public class CartesianProductBuilder
     @SafeVarargs
     public static <T> CartesianProductBuilderBase of(T... objects)
     {
-        return new CartesianProductBuilderBase(Stream.of(objects));
+        return of(Stream.of(objects));
     }
 
     /**
@@ -127,7 +127,7 @@ public class CartesianProductBuilder
      */
     public CartesianProductBuilder and(Collection<?> objects)
     {
-        return new CartesianProductBuilder(this::build, objects.stream());
+        return and(objects.stream());
     }
 
     /**
@@ -140,11 +140,12 @@ public class CartesianProductBuilder
     @SafeVarargs
     public final <T> CartesianProductBuilder and(T... objects)
     {
-        return new CartesianProductBuilder(this::build, Stream.of(objects));
+        return and(Stream.of(objects));
     }
 
     /**
      * Builds a stream of combinations which together represent the Cartesian product.
+     * 
      * @return the Cartesian product.
      */
     public Stream<Combination> build()
@@ -192,7 +193,7 @@ public class CartesianProductBuilder
          */
         public CartesianProductBuilder and(Collection<?> objects)
         {
-            return new CartesianProductBuilder(this::build, objects.stream());
+            return and(objects.stream());
         }
 
         /**
@@ -206,7 +207,7 @@ public class CartesianProductBuilder
         @SafeVarargs
         public final <T> CartesianProductBuilder and(T... objects)
         {
-            return new CartesianProductBuilder(this::build, Stream.of(objects));
+            return and(Stream.of(objects));
         }
 
         private Stream<Combination> build()
