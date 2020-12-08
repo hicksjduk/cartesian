@@ -150,7 +150,7 @@ public class CartesianProductBuilder
      */
     public Stream<Combination> build()
     {
-        return baseBuilder.get().flatMap(c -> Stream.of(objects).map(o -> c.with(o)));
+        return baseBuilder.get().flatMap(c -> Stream.of(objects).map(c::with));
     }
 
     /**
