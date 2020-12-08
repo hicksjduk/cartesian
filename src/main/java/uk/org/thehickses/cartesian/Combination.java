@@ -26,10 +26,25 @@ import java.util.stream.Stream;
  */
 public class Combination
 {
+    /**
+     * The objects in the combination.
+     */
+    private final Object[] objects;
+
+    /**
+     * An iterator that is used to access the objects in turn.
+     */
     private final Iterator<Object> iterator;
 
-    public Combination(Object[] objects)
+    /**
+     * Initialises the combination with the specified objects.
+     * 
+     * @param objects
+     *            the objects.
+     */
+    Combination(Object... objects)
     {
+        this.objects = objects;
         iterator = Stream.of(objects).iterator();
     }
 
@@ -139,5 +154,19 @@ public class Combination
         while (hasNext())
             answer.add(next(type));
         return answer.stream();
+    }
+
+    /**
+     * Gets a new combination, formed by concatenating the objects in this combination with the specified objects (in
+     * that order).
+     * 
+     * @param objects
+     *            the objects.
+     * @return the new combination.
+     */
+    Combination with(Object... objects)
+    {
+        return new Combination(
+                Stream.concat(Stream.of(this.objects), Stream.of(objects)).toArray());
     }
 }
