@@ -91,7 +91,7 @@ public class CartesianProductBuilder
 
     /**
      * Creates a builder from the specified base builder, and some objects that are to be permuted with the Cartesian
-     * product that the builder constructs.
+     * product that the base builder constructs.
      * 
      * @param base
      *            the base builder.
@@ -144,7 +144,7 @@ public class CartesianProductBuilder
     }
 
     /**
-     * Builds a stream of combinations which together represent the Cartesian product.
+     * Builds a stream of combinations which together constitute the Cartesian product.
      * 
      * @return the Cartesian product.
      */
