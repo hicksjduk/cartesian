@@ -17,6 +17,7 @@ limitations under the License.
 package uk.org.thehickses.cartesian;
 
 import java.util.Collection;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -39,7 +40,7 @@ import java.util.stream.Stream;
  * @author Jeremy Hicks
  *
  */
-public class CartesianProductBuilder implements BuilderImpl
+public class CartesianProductBuilder
 {
     /**
      * Gets a base builder which contains the objects in the specified stream.
@@ -81,10 +82,10 @@ public class CartesianProductBuilder implements BuilderImpl
     /**
      * The base builder that constructs the Cartesian product with which the objects in this builder are to be permuted.
      */
-    private final BuilderImpl base;
+    private final Supplier<Stream<Combination>> baseBuilder;
 
     /**
-     * A set of objects which are to be permuted with the Cartesian product constructed by the base.
+     * A set of objects which are to be permuted with the Cartesian product constructed by the base builder.
      */
     private final Object[] objects;
 
@@ -97,9 +98,9 @@ public class CartesianProductBuilder implements BuilderImpl
      * @param objects
      *            the objects to be permuted.
      */
-    private CartesianProductBuilder(BuilderImpl base, Stream<?> objects)
+    private CartesianProductBuilder(Supplier<Stream<Combination>> baseBuilder, Stream<?> objects)
     {
-        this.base = base;
+        this.baseBuilder = baseBuilder;
         this.objects = objects.toArray();
     }
 
@@ -113,7 +114,7 @@ public class CartesianProductBuilder implements BuilderImpl
      */
     public CartesianProductBuilder and(Stream<?> objects)
     {
-        return new CartesianProductBuilder(this, objects);
+        return new CartesianProductBuilder(this::build, objects);
     }
 
     /**
@@ -126,7 +127,7 @@ public class CartesianProductBuilder implements BuilderImpl
      */
     public CartesianProductBuilder and(Collection<?> objects)
     {
-        return new CartesianProductBuilder(this, objects.stream());
+        return new CartesianProductBuilder(this::build, objects.stream());
     }
 
     /**
@@ -139,13 +140,16 @@ public class CartesianProductBuilder implements BuilderImpl
     @SafeVarargs
     public final <T> CartesianProductBuilder and(T... objects)
     {
-        return new CartesianProductBuilder(this, Stream.of(objects));
+        return new CartesianProductBuilder(this::build, Stream.of(objects));
     }
 
-    @Override
+    /**
+     * Builds a stream of combinations which together represent the Cartesian product.
+     * @return the Cartesian product.
+     */
     public Stream<Combination> build()
     {
-        return base.build().flatMap(c -> Stream.of(objects).map(o -> c.with(o)));
+        return baseBuilder.get().flatMap(c -> Stream.of(objects).map(o -> c.with(o)));
     }
 
     /**
@@ -153,7 +157,7 @@ public class CartesianProductBuilder implements BuilderImpl
      * cannot itself be used to build a Cartesian product as at least two collections must be specified; a second
      * collection can be added to it by calling one of the variants of the {@code and()} method.
      */
-    public static class CartesianProductBuilderBase implements BuilderImpl
+    public static class CartesianProductBuilderBase
     {
         /**
          * A set of objects which are to be permuted with other objects in the final Cartesian product.
@@ -175,7 +179,7 @@ public class CartesianProductBuilder implements BuilderImpl
          */
         public CartesianProductBuilder and(Stream<?> objects)
         {
-            return new CartesianProductBuilder(this, objects);
+            return new CartesianProductBuilder(this::build, objects);
         }
 
         /**
@@ -188,7 +192,7 @@ public class CartesianProductBuilder implements BuilderImpl
          */
         public CartesianProductBuilder and(Collection<?> objects)
         {
-            return new CartesianProductBuilder(this, objects.stream());
+            return new CartesianProductBuilder(this::build, objects.stream());
         }
 
         /**
@@ -202,11 +206,10 @@ public class CartesianProductBuilder implements BuilderImpl
         @SafeVarargs
         public final <T> CartesianProductBuilder and(T... objects)
         {
-            return new CartesianProductBuilder(this, Stream.of(objects));
+            return new CartesianProductBuilder(this::build, Stream.of(objects));
         }
 
-        @Override
-        public Stream<Combination> build()
+        private Stream<Combination> build()
         {
             return Stream.of(objects).map(Combination::new);
         }
