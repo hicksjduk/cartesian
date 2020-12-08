@@ -18,22 +18,26 @@ class CartesianProductBuilderTest
                 .and(true, false)
                 .build()
                 .iterator();
-        contentsChecker("a", 1, 1.1, true).accept(it.next());
-        contentsChecker("a", 1, 1.1, false).accept(it.next());
-        contentsChecker("a", 1, 2.2, true).accept(it.next());
-        contentsChecker("a", 1, 2.2, false).accept(it.next());
-        contentsChecker("a", 2, 1.1, true).accept(it.next());
-        contentsChecker("a", 2, 1.1, false).accept(it.next());
-        contentsChecker("a", 2, 2.2, true).accept(it.next());
-        contentsChecker("a", 2, 2.2, false).accept(it.next());
-        contentsChecker("b", 1, 1.1, true).accept(it.next());
-        contentsChecker("b", 1, 1.1, false).accept(it.next());
-        contentsChecker("b", 1, 2.2, true).accept(it.next());
-        contentsChecker("b", 1, 2.2, false).accept(it.next());
-        contentsChecker("b", 2, 1.1, true).accept(it.next());
-        contentsChecker("b", 2, 1.1, false).accept(it.next());
-        contentsChecker("b", 2, 2.2, true).accept(it.next());
-        contentsChecker("b", 2, 2.2, false).accept(it.next());
+        Stream.of(
+        // @formatter:off
+            contentsChecker("a", 1, 1.1, true),
+            contentsChecker("a", 1, 1.1, false),
+            contentsChecker("a", 1, 2.2, true),
+            contentsChecker("a", 1, 2.2, false),
+            contentsChecker("a", 2, 1.1, true),
+            contentsChecker("a", 2, 1.1, false),
+            contentsChecker("a", 2, 2.2, true),
+            contentsChecker("a", 2, 2.2, false),
+            contentsChecker("b", 1, 1.1, true),
+            contentsChecker("b", 1, 1.1, false),
+            contentsChecker("b", 1, 2.2, true),
+            contentsChecker("b", 1, 2.2, false),
+            contentsChecker("b", 2, 1.1, true),
+            contentsChecker("b", 2, 1.1, false),
+            contentsChecker("b", 2, 2.2, true),
+            contentsChecker("b", 2, 2.2, false)
+        // @formatter:on
+        ).forEach(cc -> cc.accept(it.next()));
         assertThat(it.hasNext()).isFalse();
     }
 
@@ -46,6 +50,7 @@ class CartesianProductBuilderTest
                 assertThat(c.nextInt()).isEqualTo(second);
                 assertThat(c.nextDouble()).isEqualTo(third);
                 assertThat(c.nextBoolean()).isEqualTo(fourth);
+                assertThat(c.hasNext()).isEqualTo(false);
             };
     }
 
