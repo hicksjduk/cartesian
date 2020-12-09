@@ -45,9 +45,9 @@ array, or individually (a varargs argument). For example, to use the objects `x`
 
 ```java
 CartesianProduct.of(x, y, z)
-CartesianProduct.of(str)   // str = Stream.of(x, y, z)
-CartesianProduct.of(arr}   // arr = new Object[] {x, y, z}
-CartesianProduct.of(lst)   // lst = Arrays.asList(x, y, z)
+CartesianProduct.of(Stream.of(x, y, z))
+CartesianProduct.of(new Object[] {x, y, z})
+CartesianProduct.of(Arrays.asList(x, y, z))
 ```
 
 A Cartesian product that is built using this builder is of type `Stream<Combination>`,
