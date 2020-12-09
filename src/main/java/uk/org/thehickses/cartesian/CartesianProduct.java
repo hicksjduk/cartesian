@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
- * A builder that creates the Cartesian product of two or more collections of objects. The objects can be specified
+ * A facility for creating the Cartesian product of two or more collections of objects. The objects can be specified
  * individually, or in a stream, an array or a collection.
  * 
  * <p>
@@ -77,6 +77,10 @@ public class CartesianProduct
     public static <T> CartesianProductBuilderBase of(T... objects)
     {
         return of(Stream.of(objects));
+    }
+
+    private CartesianProduct()
+    {
     }
 
     /**
