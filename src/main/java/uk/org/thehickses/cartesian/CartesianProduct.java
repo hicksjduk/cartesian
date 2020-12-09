@@ -34,7 +34,7 @@ import java.util.stream.Stream;
  * An example of the use of this class to build the above Cartesian product:
  * 
  * <pre>
- * CartesianProductBuilder.of(A, B).and(C, D).and(E, F).build();
+ * CartesianProduct.of(A, B).and(C, D).and(E, F).build();
  * </pre>
  * 
  * @author Jeremy Hicks
