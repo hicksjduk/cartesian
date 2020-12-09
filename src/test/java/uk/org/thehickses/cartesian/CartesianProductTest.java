@@ -1,21 +1,24 @@
 package uk.org.thehickses.cartesian;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-import static org.assertj.core.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
 
-class CartesianProductBuilderTest
+class CartesianProductTest
 {
     @Test
     void testNoneEmpty()
     {
-        Iterator<Combination> it = CartesianProductBuilder
-                .of("a", "b")
-                .and(1, 2)
+        Iterator<Combination> it = CartesianProduct
+                .of("a b".split(" "))
+                .and(Arrays.asList(1, 2))
                 .and(1.1, 2.2)
-                .and(true, false)
+                .and(Stream.of(true, false))
                 .build()
                 .iterator();
         Stream.of(
@@ -57,7 +60,7 @@ class CartesianProductBuilderTest
     @Test
     void testOneEmpty()
     {
-        Stream<Combination> result = CartesianProductBuilder
+        Stream<Combination> result = CartesianProduct
                 .of("a", "b")
                 .and(1, 2)
                 .and()

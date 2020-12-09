@@ -40,7 +40,7 @@ import java.util.stream.Stream;
  * @author Jeremy Hicks
  *
  */
-public class CartesianProductBuilder
+public class CartesianProduct
 {
     /**
      * Gets a base builder which contains the objects in the specified stream.
@@ -80,82 +80,91 @@ public class CartesianProductBuilder
     }
 
     /**
-     * The base builder that constructs the Cartesian product with which the objects in this builder are to be permuted.
+     * A builder that creates the Cartesian product of two or more collections of objects.
      */
-    private final Supplier<Stream<Combination>> baseBuilder;
-
-    /**
-     * A set of objects which are to be permuted with the Cartesian product constructed by the base builder.
-     */
-    private final Object[] objects;
-
-    /**
-     * Creates a builder from the specified base builder, and some objects that are to be permuted with the Cartesian
-     * product that the base builder constructs.
-     * 
-     * @param base
-     *            the base builder.
-     * @param objects
-     *            the objects to be permuted.
-     */
-    private CartesianProductBuilder(Supplier<Stream<Combination>> baseBuilder, Stream<?> objects)
+    public static class CartesianProductBuilder
     {
-        this.baseBuilder = baseBuilder;
-        this.objects = objects.toArray();
+        /**
+         * The base builder that constructs the Cartesian product with which the objects in this builder are to be
+         * permuted.
+         */
+        private final Supplier<Stream<Combination>> baseBuilder;
+
+        /**
+         * A set of objects which are to be permuted with the Cartesian product constructed by the base builder.
+         */
+        private final Object[] objects;
+
+        /**
+         * Creates a builder from the specified base builder, and some objects that are to be permuted with the
+         * Cartesian product that the base builder constructs.
+         * 
+         * @param base
+         *            the base builder.
+         * @param objects
+         *            the objects to be permuted.
+         */
+        private CartesianProductBuilder(Supplier<Stream<Combination>> baseBuilder,
+                Stream<?> objects)
+        {
+            this.baseBuilder = baseBuilder;
+            this.objects = objects.toArray();
+        }
+
+        /**
+         * Gets a builder which will permute the objects in the specified stream with the Cartesian product constructed
+         * by this builder.
+         * 
+         * @param objects
+         *            the objects.
+         * @return the new builder.
+         */
+        public CartesianProductBuilder and(Stream<?> objects)
+        {
+            return new CartesianProductBuilder(this::build, objects);
+        }
+
+        /**
+         * Gets a builder which will permute the objects in the specified collection with the Cartesian product
+         * constructed by this builder.
+         * 
+         * @param objects
+         *            the objects.
+         * @return the new builder.
+         */
+        public CartesianProductBuilder and(Collection<?> objects)
+        {
+            return and(objects.stream());
+        }
+
+        /**
+         * Gets a builder which will permute the specified objects with the Cartesian product constructed by this
+         * builder.
+         * 
+         * @param objects
+         *            the objects.
+         * @return the new builder.
+         */
+        @SafeVarargs
+        public final <T> CartesianProductBuilder and(T... objects)
+        {
+            return and(Stream.of(objects));
+        }
+
+        /**
+         * Builds a stream of combinations which together constitute the Cartesian product.
+         * 
+         * @return the Cartesian product.
+         */
+        public Stream<Combination> build()
+        {
+            return baseBuilder.get().flatMap(c -> Stream.of(objects).map(c::with));
+        }
     }
 
     /**
-     * Gets a builder which will permute the objects in the specified stream with the Cartesian product constructed by
-     * this builder.
-     * 
-     * @param objects
-     *            the objects.
-     * @return the new builder.
-     */
-    public CartesianProductBuilder and(Stream<?> objects)
-    {
-        return new CartesianProductBuilder(this::build, objects);
-    }
-
-    /**
-     * Gets a builder which will permute the objects in the specified collection with the Cartesian product constructed
-     * by this builder.
-     * 
-     * @param objects
-     *            the objects.
-     * @return the new builder.
-     */
-    public CartesianProductBuilder and(Collection<?> objects)
-    {
-        return and(objects.stream());
-    }
-
-    /**
-     * Gets a builder which will permute the specified objects with the Cartesian product constructed by this builder.
-     * 
-     * @param objects
-     *            the objects.
-     * @return the new builder.
-     */
-    @SafeVarargs
-    public final <T> CartesianProductBuilder and(T... objects)
-    {
-        return and(Stream.of(objects));
-    }
-
-    /**
-     * Builds a stream of combinations which together constitute the Cartesian product.
-     * 
-     * @return the Cartesian product.
-     */
-    public Stream<Combination> build()
-    {
-        return baseBuilder.get().flatMap(c -> Stream.of(objects).map(c::with));
-    }
-
-    /**
-     * A base object that is used as an intermediate stage in building a {@link CartesianProductBuilder}. This builder
-     * cannot itself be used to build a Cartesian product as at least two collections must be specified; a second
+     * A base builder that is used as an intermediate stage in building a {@link CartesianProductBuilder}. This builder
+     * cannot itself be used to build a Cartesian product, as at least two collections must be specified; a second
      * collection can be added to it by calling one of the variants of the {@code and()} method.
      */
     public static class CartesianProductBuilderBase

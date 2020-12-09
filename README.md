@@ -4,12 +4,14 @@ A builder which constructs the Cartesian product of two or more sequences of
 objects. 
 
 The Cartesian product of _n_ sequences consists of all possible
-combinations in which the first element of the comhination is taken from the first 
+combinations that each include one value taken from each sequence. 
+Each combination contains _n_ elements; 
+its first element is taken from the first 
 sequence, the second element from the second sequence, and so on to the _nth_ 
 element which is taken from the _nth_ sequence.
 
 For example, the Cartesian product of the sequences _(A,B)_, _(C,D)_ and _(E,F)_ 
-consists of the following eight combinations:
+consists of the following combinations:
 * _(A, C, E)_
 * _(A, C, F)_
 * _(A, D, E)_
@@ -22,7 +24,7 @@ consists of the following eight combinations:
 ## Usage
 
 A Cartesian product builder is created using a fluent API, where the first sequence
-to be used is specified by calling the static method `CartesianProductBuilder.of()`, 
+to be used is specified by calling the static method `CartesianProduct.of()`, 
 and each subsequent sequence by calling the `and()` instance method of the result
 of the previous call. The minimum number of such calls is two (that is, 
 `CartesianProduct.of(...).and(...)`), after which the 
@@ -32,7 +34,7 @@ For example, the builder that operates on the sequences shown above would be
 invoked as
 
 ```java
-Stream<Combination> product = CartesianProductBuilder.of(A, B)
+Stream<Combination> product = CartesianProduct.of(A, B)
    .and(C, D)
    .and(E, F)
    .build();
@@ -42,14 +44,14 @@ Each sequence of objects can be specified as a `Collection`, a `Stream`, an
 array, or individually (a varargs argument). For example, to use the objects `x`, `y` and `z` as the first sequence any of the following might be used:
 
 ```java
-CartesianProductBuilder.of(x, y, z)
-CartesianProductBuilder.of(str)   // str = Stream.of(x, y, z)
-CartesianProductBuilder.of(arr}   // arr = new Object[] {x, y, z}
-CartesianProductBuilder.of(lst)   // lst = Arrays.asList(x, y, z)
+CartesianProduct.of(x, y, z)
+CartesianProduct.of(str)   // str = Stream.of(x, y, z)
+CartesianProduct.of(arr}   // arr = new Object[] {x, y, z}
+CartesianProduct.of(lst)   // lst = Arrays.asList(x, y, z)
 ```
 
 A Cartesian product that is built using this builder is of type `Stream<Combination>`,
-where each combination is a single element of the Cartesian product. The Combination
+where each combination is a single element of the Cartesian product. The `Combination`
 is essentially an iterator, which allows the elements of the combination to be
 accessed in turn. Each element is stored as an `Object`, but methods are provided
 to access the next element as any object type, or any of the primitive types `int`,
